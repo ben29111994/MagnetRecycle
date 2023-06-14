@@ -1,0 +1,27 @@
+﻿
+#pragma kernel CSCopyTexture
+
+uniform Texture2D<float4> source;
+uniform RWTexture2D<float4> destination;
+uniform uint offsetX;
+uniform uint sourceSizeX;
+uniform uint sourceSizeY;
+
+[numthreads(8,8,1)]
+void CSCopyTexture(uint2 id : SV_DispatchThreadID)
+{
+
+    if (id.x >= sourceSizeX || id.y >= sourceSizeY)
+        return;
+
+    uint indexX = id.x + offsetX;
+    
+    float4 color = source[uint2(id.x, id.y)];
+
+#if SHADER_API_GLCORE || SHADER_API_GLES3
+    color.r = 1 - color.r;
+#endif
+
+    destination[uint2(indexX, id.y)] = color;
+
+}
